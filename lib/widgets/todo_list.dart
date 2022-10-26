@@ -43,7 +43,6 @@ class TodoListState extends State<TodoList> {
               children: widget.tasks
                   .map((e) => ListTile(
                         onTap: () {
-                          print('onTap');
                           setState(() {
                             currentTask = e.id;
                           });
@@ -51,7 +50,6 @@ class TodoListState extends State<TodoList> {
                         leading: Checkbox(
                           onChanged: (v) {
                             if (v!) {
-                              print(v);
                               setState(() {
                                 widget.tasks = widget.tasks
                                     .where((element) => element.id != e.id)
