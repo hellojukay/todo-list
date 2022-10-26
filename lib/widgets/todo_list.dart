@@ -1,9 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:todo_list/models/task.dart';
 
 class TodoList extends StatefulWidget {
-  const TodoList({super.key});
+  TodoList({super.key});
+  List<Task> tasks = Task.all();
 
   @override
   State<StatefulWidget> createState() {
@@ -12,7 +14,23 @@ class TodoList extends StatefulWidget {
 }
 
 class TodoListState extends State<TodoList> {
+  int currentTask = 0;
+
+  String getDesc(int id) {
+    String desc = "";
+    for (var i = 0; i < widget.tasks.length; i++) {
+      if (widget.tasks[i].id == id) {
+        desc = widget.tasks[i].desc;
+        break;
+      }
+    }
+    return desc;
+  }
+
   Widget getContent(int id) {
+    TextEditingController controller = TextEditingController();
+    controller.text = getDesc(currentTask);
+
     return Row(
       children: [
         Container(
@@ -22,54 +40,34 @@ class TodoListState extends State<TodoList> {
                       width: 1, color: Color.fromARGB(255, 243, 243, 243)))),
           width: 300,
           child: ListView(
-            children: [
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              ),
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              ),
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              ),
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              ),
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              ),
-              ListTile(
-                leading: Checkbox(
-                  onChanged: (bool? value) {},
-                  value: false,
-                ),
-                title: Text("11111111111"),
-              )
-            ],
-          ),
+              children: widget.tasks
+                  .map((e) => ListTile(
+                        onTap: () {
+                          print('onTap');
+                          setState(() {
+                            currentTask = e.id;
+                          });
+                        },
+                        leading: Checkbox(
+                          onChanged: (v) {
+                            if (v!) {
+                              print(v);
+                              setState(() {
+                                widget.tasks = widget.tasks
+                                    .where((element) => element.id != e.id)
+                                    .toList();
+                              });
+                            }
+                          },
+                          value: false,
+                        ),
+                        title: Text(e.title),
+                      ))
+                  .toList()),
         ),
         Expanded(
             child: TextFormField(
+          controller: controller,
           maxLines: 100,
         ))
       ],
