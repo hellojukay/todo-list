@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../widgets/todo_list.dart';
+import 'calendar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -30,11 +30,7 @@ class HomeState extends State<Home> {
       return TodoList();
     }
     if (id == 1) {
-      return Scaffold(
-          body: SfCalendar(
-        view: CalendarView.month,
-        monthViewSettings: MonthViewSettings(showAgenda: true),
-      ));
+      return Calendar();
     }
     return const Text("coming soon");
   }
@@ -64,7 +60,18 @@ class HomeState extends State<Home> {
                     });
                   },
                   icon: const Icon(Icons.calendar_month)),
-              const Icon(Icons.search),
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return SimpleDialog(
+                          title: TextField(),
+                        );
+                      });
+                },
+              ),
               Expanded(child: Container()),
               IconButton(
                 onPressed: () {

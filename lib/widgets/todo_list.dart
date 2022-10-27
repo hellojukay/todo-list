@@ -149,7 +149,6 @@ class TodoListState extends State<TodoList> {
                           currentCollection = 2;
                         });
                       },
-                      hoverColor: Colors.red,
                       leading: const Icon(Icons.collections),
                       title: const Text('收集箱'),
                       trailing: Text(widget.all.length.toString()),
