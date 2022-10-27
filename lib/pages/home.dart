@@ -11,9 +11,18 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  int contentID = 0;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  about(BuildContext context) {
+    showAboutDialog(
+        context: context,
+        applicationName: "TodoList小程序",
+        applicationVersion: "v0.1.0");
   }
 
   Widget getContent(int id) {
@@ -29,8 +38,6 @@ class HomeState extends State<Home> {
     }
     return const Text("coming soon");
   }
-
-  int contentID = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +67,15 @@ class HomeState extends State<Home> {
               const Icon(Icons.search),
               Expanded(child: Container()),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  about(context);
+                },
+                icon: const Icon(Icons.settings),
+              ),
+              IconButton(
+                onPressed: () {
+                  about(context);
+                },
                 icon: const Icon(Icons.help),
               ),
             ]),

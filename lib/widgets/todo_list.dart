@@ -1,11 +1,13 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:todo_list/models/task.dart';
 
 class TodoList extends StatefulWidget {
   TodoList({super.key});
-  List<Task> tasks = Task.all();
+  List<Task> today = Task.today();
+  List<Task> tomorrow = Task.tomorrow();
+  List<Task> all = Task.all();
+
+  List<Task> tasks = [];
 
   @override
   State<StatefulWidget> createState() {
@@ -15,6 +17,7 @@ class TodoList extends StatefulWidget {
 
 class TodoListState extends State<TodoList> {
   int currentTask = 0;
+  int currentCollection = 0;
 
   String getDesc(int id) {
     String desc = "";
@@ -27,10 +30,34 @@ class TodoListState extends State<TodoList> {
     return desc;
   }
 
-  Widget getContent(int id) {
-    TextEditingController controller = TextEditingController();
-    controller.text = getDesc(currentTask);
+  removeTask(int id, int day) {
+    if (day == 0) {
+      widget.today = widget.today.where((element) => element.id != id).toList();
+      widget.tasks = widget.today;
+    }
+    if (day == 1) {
+      widget.tomorrow =
+          widget.tomorrow.where((element) => element.id != id).toList();
+      widget.tasks = widget.tomorrow;
+    }
+    if (day == 2) {
+      widget.all = widget.all.where((element) => element.id != id).toList();
+      widget.tasks = widget.all;
+    }
+  }
 
+  Widget getContent(int id, int day) {
+    TextEditingController controller = TextEditingController();
+    if (day == 0) {
+      widget.tasks = widget.today;
+    }
+    if (day == 1) {
+      widget.tasks = widget.tomorrow;
+    }
+    if (day == 2) {
+      widget.tasks = widget.all;
+    }
+    controller.text = getDesc(currentTask);
     return Row(
       children: [
         Container(
@@ -38,7 +65,7 @@ class TodoListState extends State<TodoList> {
               border: Border(
                   right: BorderSide(
                       width: 1, color: Color.fromARGB(255, 243, 243, 243)))),
-          width: 300,
+          width: 450,
           child: ListView(
               children: widget.tasks
                   .map((e) => ListTile(
@@ -51,9 +78,7 @@ class TodoListState extends State<TodoList> {
                           onChanged: (v) {
                             if (v!) {
                               setState(() {
-                                widget.tasks = widget.tasks
-                                    .where((element) => element.id != e.id)
-                                    .toList();
+                                removeTask(e.id, currentCollection);
                               });
                             }
                           },
@@ -78,34 +103,61 @@ class TodoListState extends State<TodoList> {
       body: Row(
         children: [
           Container(
-              color: const Color.fromARGB(255, 242, 245, 254),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 242, 245, 254),
+              ),
               width: 180,
               child: ListView(
                 children: [
-                  IconButton(
-                      onPressed: () {},
-                      icon: const ListTile(
-                        leading: Icon(Icons.today),
-                        title: Text('今天'),
-                        trailing: Text('1'),
-                      )),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const ListTile(
-                        leading: Icon(Icons.today),
-                        title: Text('明天'),
-                        trailing: Text('7'),
-                      )),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const ListTile(
-                        leading: Icon(Icons.collections),
-                        title: Text('收集箱'),
-                        trailing: Text('3'),
-                      ))
+                  Container(
+                    color: currentCollection == 0
+                        ? const Color.fromARGB(255, 224, 232, 253)
+                        : null,
+                    child: ListTile(
+                      onTap: () {
+                        setState(() {
+                          currentCollection = 0;
+                        });
+                      },
+                      leading: const Icon(Icons.today),
+                      title: const Text('今天'),
+                      trailing: Text(widget.today.length.toString()),
+                    ),
+                  ),
+                  Container(
+                    color: currentCollection == 1
+                        ? const Color.fromARGB(255, 224, 232, 253)
+                        : null,
+                    child: ListTile(
+                      onTap: () {
+                        setState(() {
+                          currentCollection = 1;
+                        });
+                      },
+                      leading: const Icon(Icons.today),
+                      title: const Text('明天'),
+                      trailing: Text(widget.tomorrow.length.toString()),
+                    ),
+                  ),
+                  Container(
+                    color: currentCollection == 2
+                        ? const Color.fromARGB(255, 224, 232, 253)
+                        : null,
+                    child: ListTile(
+                      onTap: () {
+                        setState(() {
+                          currentCollection = 2;
+                        });
+                      },
+                      hoverColor: Colors.red,
+                      leading: const Icon(Icons.collections),
+                      title: const Text('收集箱'),
+                      trailing: Text(widget.all.length.toString()),
+                    ),
+                  )
                 ],
               )),
-          Expanded(child: getContent(1))
+          Expanded(child: getContent(currentTask, currentCollection))
         ],
       ),
     );
