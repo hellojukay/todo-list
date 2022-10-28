@@ -74,6 +74,17 @@ class TodoListState extends State<TodoList> {
                             currentTask = e.id;
                           });
                         },
+                        trailing: IconButton(
+                            onPressed: () {
+                              showDatePicker(
+                                context: context,
+                                firstDate: DateTime.now(),
+                                lastDate:
+                                    DateTime.now().add(Duration(days: 100)),
+                                initialDate: DateTime.now(),
+                              );
+                            },
+                            icon: const Icon(Icons.calendar_month)),
                         leading: Checkbox(
                           onChanged: (v) {
                             if (v!) {
