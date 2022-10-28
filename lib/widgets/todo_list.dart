@@ -65,7 +65,7 @@ class TodoListState extends State<TodoList> {
               border: Border(
                   right: BorderSide(
                       width: 1, color: Color.fromARGB(255, 243, 243, 243)))),
-          width: 450,
+          width: 400,
           child: ListView(
               children: widget.tasks
                   .map((e) => ListTile(
