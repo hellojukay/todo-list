@@ -25,12 +25,16 @@ class MarkdownEditorState extends State<MarkdownEditor> {
         });
       },
       child: editing
-          ? TextField(
-              decoration: const InputDecoration(fillColor: Colors.white),
-              maxLines: 1000,
-              controller: widget.controller,
-              focusNode: FocusNode(),
-              autofocus: true,
+          ? Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextField(
+                style: const TextStyle(fontSize: 23),
+                decoration: const InputDecoration(fillColor: Colors.white),
+                maxLines: 1000,
+                controller: widget.controller,
+                focusNode: FocusNode(),
+                autofocus: true,
+              ),
             )
           : Markdown(
               onTapLink: (text, href, title) {

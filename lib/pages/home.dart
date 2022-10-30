@@ -67,7 +67,19 @@ class HomeState extends State<Home> {
                       context: context,
                       builder: (context) {
                         return SimpleDialog(
-                          title: TextField(),
+                          title: DecoratedBox(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(90)),
+                              child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Container(
+                                      width: 450,
+                                      child: const TextField(
+                                        decoration: InputDecoration(
+                                          hintText: "search",
+                                          border: InputBorder.none,
+                                        ),
+                                      )))),
                         );
                       });
                 },
