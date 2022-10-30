@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:todo_list/models/task.dart';
 
 class TodoList extends StatefulWidget {
@@ -46,8 +48,46 @@ class TodoListState extends State<TodoList> {
     }
   }
 
+  List<Widget> getTodoList(List<Task> tasks) {
+    return tasks
+        .map((e) => ListTile(
+              trailing: IconButton(
+                  onPressed: () {
+                    showDatePicker(
+                      context: context,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 100)),
+                      initialDate: DateTime.now(),
+                    );
+                  },
+                  icon: const Icon(Icons.calendar_month)),
+              leading: Checkbox(
+                onChanged: (v) {
+                  if (v!) {
+                    setState(() {
+                      removeTask(e.id, currentCollection);
+                    });
+                  }
+                },
+                value: false,
+              ),
+              title: TextField(
+                onTap: () {
+                  setState(() {
+                    currentTask = e.id;
+                  });
+                },
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                ),
+                controller: TextEditingController(text: e.title),
+              ),
+            ))
+        .toList();
+  }
+
   Widget getContent(int id, int day) {
-    TextEditingController controller = TextEditingController();
+    TextEditingController descController = TextEditingController();
     if (day == 0) {
       widget.tasks = widget.today;
     }
@@ -57,52 +97,54 @@ class TodoListState extends State<TodoList> {
     if (day == 2) {
       widget.tasks = widget.all;
     }
-    controller.text = getDesc(currentTask);
+    descController.text = getDesc(currentTask);
+    TextEditingController inputController = TextEditingController();
     return Row(
       children: [
-        Container(
-          decoration: const BoxDecoration(
-              border: Border(
-                  right: BorderSide(
-                      width: 1, color: Color.fromARGB(255, 243, 243, 243)))),
-          width: 400,
-          child: ListView(
-              children: widget.tasks
-                  .map((e) => ListTile(
-                        onTap: () {
-                          setState(() {
-                            currentTask = e.id;
-                          });
-                        },
-                        trailing: IconButton(
-                            onPressed: () {
-                              showDatePicker(
-                                context: context,
-                                firstDate: DateTime.now(),
-                                lastDate:
-                                    DateTime.now().add(Duration(days: 100)),
-                                initialDate: DateTime.now(),
-                              );
-                            },
-                            icon: const Icon(Icons.calendar_month)),
-                        leading: Checkbox(
-                          onChanged: (v) {
-                            if (v!) {
-                              setState(() {
-                                removeTask(e.id, currentCollection);
-                              });
-                            }
-                          },
-                          value: false,
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 243, 243, 243),
+                    borderRadius: BorderRadius.circular(5)),
+                child: SizedBox(
+                    width: 350,
+                    height: 40,
+                    child: TextField(
+                      onTap: () {
+                        descController.text = "";
+                      },
+                      controller: inputController,
+                      decoration: const InputDecoration(
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Icon(Icons.add),
                         ),
-                        title: Text(e.title),
-                      ))
-                  .toList()),
+                        hintText: '添加今日的任务到收集箱',
+                        border: InputBorder.none,
+                      ),
+                    )),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                    border: Border(
+                        right: BorderSide(
+                            width: 1,
+                            color: Color.fromARGB(255, 243, 243, 243)))),
+                width: 400,
+                child: ListView(children: getTodoList(widget.tasks)),
+              ),
+            ),
+          ],
         ),
         Expanded(
-            child: TextFormField(
-          controller: controller,
-          maxLines: 100,
+            child: Markdown(
+          selectable: true,
+          data: descController.text,
         ))
       ],
     );

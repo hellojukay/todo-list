@@ -38,8 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   syncfusion_flutter_calendar: ^20.3.52
   syncfusion_localizations: ^20.3.52
-  flutter_localizations:
-    sdk: flutter
+  flutter_markdown: ^0.6.12
 dev_dependencies:
   flutter_test:
     sdk: flutter
