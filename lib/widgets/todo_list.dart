@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
-import 'package:todo_list/models/task.dart';
+import '../widgets/markdown.dart';
+import '../models/task.dart';
 
 class TodoList extends StatefulWidget {
   TodoList({super.key});
@@ -142,9 +141,8 @@ class TodoListState extends State<TodoList> {
           ],
         ),
         Expanded(
-            child: Markdown(
-          selectable: true,
-          data: descController.text,
+            child: MarkdownEditor(
+          controller: descController,
         ))
       ],
     );
