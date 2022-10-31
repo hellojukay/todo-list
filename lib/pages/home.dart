@@ -35,6 +35,7 @@ class HomeState extends State<Home> {
     return const Text("coming soon");
   }
 
+  void search(String text) {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +45,7 @@ class HomeState extends State<Home> {
             color: const Color.fromARGB(255, 108, 142, 251),
             width: 50,
             child: Column(children: [
+              const SizedBox(height: 5),
               const Icon(Icons.person),
               IconButton(
                 onPressed: () {
@@ -67,19 +69,27 @@ class HomeState extends State<Home> {
                       context: context,
                       builder: (context) {
                         return SimpleDialog(
-                          title: DecoratedBox(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(90)),
-                              child: Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Container(
-                                      width: 450,
-                                      child: const TextField(
-                                        decoration: InputDecoration(
-                                          hintText: "search",
-                                          border: InputBorder.none,
-                                        ),
-                                      )))),
+                          contentPadding: const EdgeInsets.all(0),
+                          children: [
+                            DecoratedBox(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(90)),
+                                child: SizedBox(
+                                    width: 450,
+                                    child: TextField(
+                                      maxLines: 1,
+                                      textInputAction: TextInputAction.search,
+                                      onSubmitted: (v) {
+                                        search(v);
+                                      },
+                                      enableInteractiveSelection: true,
+                                      decoration: const InputDecoration(
+                                        prefixIcon: Icon(Icons.search),
+                                        hintText: "search",
+                                        border: InputBorder.none,
+                                      ),
+                                    )))
+                          ],
                         );
                       });
                 },
