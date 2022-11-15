@@ -14,3 +14,27 @@ Future<List<Task>> loadTask() async {
     client.close();
   }
 }
+
+addTask(String title) async {
+  var client = http.Client();
+
+  try {
+    var response = await client
+        .post(Uri.http('localhost:5000', '/todo/'), body: {"title": title});
+    var json = jsonDecode(utf8.decode(response.bodyBytes));
+    return Task.fromJson(json);
+  } finally {
+    client.close();
+  }
+}
+
+removeTask(int id) async {
+  var client = http.Client();
+
+  try {
+    await client.delete(Uri.http('localhost:5000', "/todo/${id}"));
+    return true;
+  } finally {
+    client.close();
+  }
+}

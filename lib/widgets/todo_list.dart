@@ -29,7 +29,9 @@ class TodoListState extends State<TodoList> {
     return desc;
   }
 
-  removeTask(int id, int day) {}
+  remove(int id, int day) async {
+    await removeTask(id);
+  }
 
   List<Widget> getTodoList(List<Task> tasks) {
     return tasks
@@ -48,7 +50,13 @@ class TodoListState extends State<TodoList> {
                 onChanged: (v) {
                   if (v!) {
                     setState(() {
-                      removeTask(e.id, currentCollection);
+                      remove(e.id, currentCollection).then((v) {
+                        loadTask().then((tasks) {
+                          setState(() {
+                            widget.tasks = tasks;
+                          });
+                        });
+                      });
                     });
                   }
                 },
@@ -90,6 +98,13 @@ class TodoListState extends State<TodoList> {
                     child: TextField(
                       onTap: () {
                         descController.text = "";
+                      },
+                      onSubmitted: (value) {
+                        addTask(value).then((task) {
+                          setState(() {
+                            widget.tasks.insert(0, task);
+                          });
+                        });
                       },
                       controller: inputController,
                       decoration: const InputDecoration(
