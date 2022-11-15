@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/http/task.dart';
 import '../widgets/markdown.dart';
 import '../models/task.dart';
 
 class TodoList extends StatefulWidget {
   TodoList({super.key});
-  List<Task> today = Task.today();
-  List<Task> tomorrow = Task.tomorrow();
-  List<Task> all = Task.all();
 
   List<Task> tasks = [];
 
@@ -31,21 +29,7 @@ class TodoListState extends State<TodoList> {
     return desc;
   }
 
-  removeTask(int id, int day) {
-    if (day == 0) {
-      widget.today = widget.today.where((element) => element.id != id).toList();
-      widget.tasks = widget.today;
-    }
-    if (day == 1) {
-      widget.tomorrow =
-          widget.tomorrow.where((element) => element.id != id).toList();
-      widget.tasks = widget.tomorrow;
-    }
-    if (day == 2) {
-      widget.all = widget.all.where((element) => element.id != id).toList();
-      widget.tasks = widget.all;
-    }
-  }
+  removeTask(int id, int day) {}
 
   List<Widget> getTodoList(List<Task> tasks) {
     return tasks
@@ -87,15 +71,7 @@ class TodoListState extends State<TodoList> {
 
   Widget getContent(int id, int day) {
     TextEditingController descController = TextEditingController();
-    if (day == 0) {
-      widget.tasks = widget.today;
-    }
-    if (day == 1) {
-      widget.tasks = widget.tomorrow;
-    }
-    if (day == 2) {
-      widget.tasks = widget.all;
-    }
+
     descController.text = getDesc(currentTask);
     TextEditingController inputController = TextEditingController();
     return Row(
@@ -172,7 +148,7 @@ class TodoListState extends State<TodoList> {
                       },
                       leading: const Icon(Icons.today),
                       title: const Text('今天'),
-                      trailing: Text(widget.today.length.toString()),
+                      trailing: Text(widget.tasks.length.toString()),
                     ),
                   ),
                   Container(
@@ -187,7 +163,7 @@ class TodoListState extends State<TodoList> {
                       },
                       leading: const Icon(Icons.today),
                       title: const Text('明天'),
-                      trailing: Text(widget.tomorrow.length.toString()),
+                      trailing: Text(widget.tasks.length.toString()),
                     ),
                   ),
                   Container(
@@ -202,7 +178,7 @@ class TodoListState extends State<TodoList> {
                       },
                       leading: const Icon(Icons.collections),
                       title: const Text('收集箱'),
-                      trailing: Text(widget.all.length.toString()),
+                      trailing: Text(widget.tasks.length.toString()),
                     ),
                   )
                 ],
@@ -211,5 +187,16 @@ class TodoListState extends State<TodoList> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadTask().then((tasks) {
+      setState(() {
+        print("加载了 ${tasks.length} 个任务");
+        widget.tasks = tasks;
+      });
+    });
   }
 }
