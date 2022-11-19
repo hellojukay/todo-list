@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:todo_list/http/task.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class MarkdownEditor extends StatefulWidget {
-  const MarkdownEditor({super.key, required this.controller});
+import '../models/task.dart';
 
-  final TextEditingController controller;
+class MarkdownEditor extends StatefulWidget {
+  const MarkdownEditor({super.key, required this.task});
+
+  final Task task;
   @override
   State<StatefulWidget> createState() {
     return MarkdownEditorState();
@@ -16,10 +19,23 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   bool editing = false;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onDoubleTap: () {
+    final TextEditingController controller =
+        TextEditingController(text: widget.task.desc);
+    return InkWell(
+      onHover: (hover) {
+        if (!hover) {
+          if (widget.task.desc == controller.text) return;
+          widget.task.desc = controller.text;
+          updateTask(widget.task);
+          setState(() {
+            editing = false;
+          });
+          return;
+        }
+      },
+      onTap: () {
         setState(() {
-          editing = !editing;
+          editing = true;
         });
       },
       child: editing
@@ -29,9 +45,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
                 style: const TextStyle(fontSize: 23),
                 decoration: const InputDecoration(fillColor: Colors.white),
                 maxLines: 1000,
-                controller: widget.controller,
-                focusNode: FocusNode(),
-                autofocus: true,
+                controller: controller,
               ),
             )
           : Markdown(
@@ -41,7 +55,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
                 }
               },
               selectable: true,
-              data: widget.controller.text,
+              data: controller.text,
             ),
     );
   }

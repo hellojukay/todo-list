@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_list/http/task.dart';
 import '../widgets/markdown.dart';
 import '../models/task.dart';
 
+// ignore: must_be_immutable
 class TodoList extends StatefulWidget {
   TodoList({super.key});
 
@@ -15,72 +17,80 @@ class TodoList extends StatefulWidget {
 }
 
 class TodoListState extends State<TodoList> {
-  int currentTask = 0;
+  Task? currentTask;
   int currentCollection = 0;
-
-  String getDesc(int id) {
-    String desc = "";
-    for (var i = 0; i < widget.tasks.length; i++) {
-      if (widget.tasks[i].id == id) {
-        desc = widget.tasks[i].desc;
-        break;
-      }
-    }
-    return desc;
-  }
 
   remove(int id, int day) async {
     await removeTask(id);
   }
 
-  List<Widget> getTodoList(List<Task> tasks) {
-    return tasks
-        .map((e) => ListTile(
-              trailing: IconButton(
-                  onPressed: () {
-                    showDatePicker(
-                      context: context,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 100)),
-                      initialDate: DateTime.now(),
-                    );
-                  },
-                  icon: const Icon(Icons.calendar_month)),
-              leading: Checkbox(
-                onChanged: (v) {
-                  if (v!) {
-                    setState(() {
-                      remove(e.id, currentCollection).then((v) {
-                        loadTask().then((tasks) {
-                          setState(() {
-                            widget.tasks = tasks;
-                          });
-                        });
-                      });
-                    });
-                  }
-                },
-                value: false,
-              ),
-              title: TextField(
-                onTap: () {
-                  setState(() {
-                    currentTask = e.id;
-                  });
-                },
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                ),
-                controller: TextEditingController(text: e.title),
-              ),
-            ))
-        .toList();
+  finishTask(Task task) async {
+    task.finished = true;
+    return updateTask(task);
   }
 
-  Widget getContent(int id, int day) {
-    TextEditingController descController = TextEditingController();
+  List<Widget> getTodoList(List<Task> tasks) {
+    return tasks.map((e) {
+      TextEditingController controller = TextEditingController();
+      controller.value = TextEditingValue(
+          text: e.title,
+          selection: TextSelection.fromPosition(TextPosition(
+              affinity: TextAffinity.downstream, offset: e.title.length)));
 
-    descController.text = getDesc(currentTask);
+      return ListTile(
+        trailing: IconButton(
+            onPressed: () {
+              showDatePicker(
+                context: context,
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 100)),
+                initialDate: DateTime.now(),
+              );
+            },
+            icon: const Icon(Icons.calendar_month)),
+        leading: Checkbox(
+          onChanged: (v) {
+            if (v!) {
+              setState(() {
+                finishTask(e).then((v) {
+                  loadTask().then((tasks) {
+                    setState(() {
+                      widget.tasks = tasks;
+                    });
+                  });
+                });
+              });
+            }
+          },
+          value: false,
+        ),
+        title: InkWell(
+          onFocusChange: (focus) {
+            if (focus) {
+              setState(() {
+                currentTask = e;
+              });
+              return;
+            }
+            if (controller.text == e.title) return;
+            e.title = controller.text;
+            updateTask(e);
+          },
+          child: TextField(
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+            ),
+            controller: controller,
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget getContent(int day) {
+    // TextEditingController descController = TextEditingController();
+
+    // descController.text = currentTask!.desc;
     TextEditingController inputController = TextEditingController();
     return Row(
       children: [
@@ -96,9 +106,6 @@ class TodoListState extends State<TodoList> {
                     width: 350,
                     height: 40,
                     child: TextField(
-                      onTap: () {
-                        descController.text = "";
-                      },
                       onSubmitted: (value) {
                         addTask(value).then((task) {
                           setState(() {
@@ -132,15 +139,20 @@ class TodoListState extends State<TodoList> {
           ],
         ),
         Expanded(
-            child: MarkdownEditor(
-          controller: descController,
-        ))
+            child: currentTask != null
+                ? MarkdownEditor(
+                    task: currentTask!,
+                  )
+                : Container())
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print("render ...");
+    }
     return Scaffold(
       body: Row(
         children: [
@@ -198,7 +210,7 @@ class TodoListState extends State<TodoList> {
                   )
                 ],
               )),
-          Expanded(child: getContent(currentTask, currentCollection))
+          Expanded(child: getContent(currentCollection))
         ],
       ),
     );
@@ -209,7 +221,9 @@ class TodoListState extends State<TodoList> {
     super.initState();
     loadTask().then((tasks) {
       setState(() {
-        print("加载了 ${tasks.length} 个任务");
+        if (kDebugMode) {
+          print("加载了 ${tasks.length} 个任务");
+        }
         widget.tasks = tasks;
       });
     });

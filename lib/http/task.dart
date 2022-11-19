@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:todo_list/models/task.dart';
 
@@ -17,7 +18,6 @@ Future<List<Task>> loadTask() async {
 
 addTask(String title) async {
   var client = http.Client();
-
   try {
     var response = await client
         .post(Uri.http('localhost:5000', '/todo/'), body: {"title": title});
@@ -30,9 +30,22 @@ addTask(String title) async {
 
 removeTask(int id) async {
   var client = http.Client();
-
   try {
-    await client.delete(Uri.http('localhost:5000', "/todo/${id}"));
+    await client.delete(Uri.http('localhost:5000', "/todo/$id"));
+    return true;
+  } finally {
+    client.close();
+  }
+}
+
+updateTask(Task task) async {
+  if (kDebugMode) {
+    print("update task ${task.id} ${task.title} ${task.finished}");
+  }
+  var client = http.Client();
+  try {
+    await client.put(Uri.http('localhost:5000', "/todo/${task.id}"),
+        body: jsonEncode(task));
     return true;
   } finally {
     client.close();
